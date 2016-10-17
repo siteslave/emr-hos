@@ -9,7 +9,7 @@ module.exports = {
 
   getHOSxPConnectionPool() {
     let HOS_HOST = config.get('HOS_HOST') || 'localhost';
-    let HOS_DBNAME = config.get('HOS_DBNAME') || 'hos';
+    let HOS_DBNAME = config.get('HOS_DBNAME') || 'hosxp_pcu';
     let HOS_USER = config.get('HOS_USER') || 'sa';
     let HOS_PASSWORD = config.get('HOS_PASSWORD') || 'sa';
     let HOS_PORT = config.get('HOS_PORT') || '3306';

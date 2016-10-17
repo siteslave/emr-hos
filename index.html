@@ -7,6 +7,7 @@
     <title>EMR@HOS</title>
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="./node_modules/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="./node_modules/angular-block-ui/dist/angular-block-ui.css">
     <link rel="stylesheet" href="./dist/css/style.css">
   </head>
   <body>
@@ -61,7 +62,7 @@
             </div>
             <div class="card-block text-justify" style="height: 500px; overflow-y: scroll;">
               <div class="tab-content">
-                <div class="tab-pane active" id="tabMainHOSxP" role="tabpanel">
+                <div class="tab-pane active" id="tabMainHOSxP" role="tabpanel" block-ui="myBlockUI">
                   <table class="table table-sm table-hover">
                     <thead>
                       <tr>
@@ -93,7 +94,7 @@
                   </table>
                   <!--<div class="list-group m-a-0" data-name="listServices"></div>-->
                 </div>
-                <div class="tab-pane" id="tabMainHDC" role="tabpanel">
+                <div class="tab-pane" id="tabMainHDC" role="tabpanel" block-ui="myBlockUI">
                    <table class="table table-sm table-hover">
                     <thead>
                       <tr>
@@ -128,7 +129,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-9">
+        <div class="col-md-9" block-ui="detailBlockUI">
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="#">EMR</a></li>
             <li class="breadcrumb-item active">{{ infoCID }}</li>
@@ -218,8 +219,8 @@
                     <thead>
                       <tr>
                         <th>#</th>
-                        <th>รายการ</th>
                         <th>วันที่/เวลา</th>
+                        <th>รายการ</th>
                         <th>วิธีใช้</th>
                         <th>จำนวน</th>
                         <th>หน่วย</th>
@@ -231,8 +232,8 @@
                       </tr>
                       <tr ng-repeat="d in drugs" ng-if="drugs.length">
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ d.drugname }}</td>
                         <td>{{ d.rxdate }} {{ d.rxtime }}</td>
+                        <td>{{ d.drugname }}</td>
                         <td>{{ d.code }}</td>
                         <td class="text-right">{{ d.qty | number }}</td>
                         <td> {{ d.units }}</td>

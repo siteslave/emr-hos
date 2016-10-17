@@ -1,18 +1,26 @@
 let moment = require('moment');
 
 angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
-  .controller('MainCtrl', ($scope, $rootScope, HOSService, HDCService) => {
+  .controller('MainCtrl', ($scope, $rootScope, HOSService, HDCService, blockUI) => {
     $scope.isHDC = false;
     $scope.isHOS = true;
-    
+
+    // $scope.progressbar = ngProgressFactory.createInstance();
+
     $scope.getHOSEmr = () => {
       $scope.isHDC = false;
       $scope.isHOS = true;
     }
 
+    let myBlockUI = blockUI.instances.get('myBlockUI');
+    let detailBlockUI = blockUI.instances.get('detailBlockUI');
+
+    blockUI.start();
+    
     HOSService.getHospitalname()
       .then(hospitalName => {
-        $scope.hospitalName = hospitalName
+        $scope.hospitalName = hospitalName;
+        blockUI.stop();
       });
 
     $scope.doSearchEnter = (event) => {
@@ -20,13 +28,17 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
     }
 
     $scope.search = () => {
+
+// Start blocking the element.
+      myBlockUI.start();
+      
       // global cid
       $rootScope.cid = $scope.txtQuery;
       // $scope.isHDC = false;
       // $scope.isHOS = true;
       $scope.services = [];
       $scope.servicesHDC = [];
-
+ 
       HOSService.doSearch($scope.txtQuery)
         .then(rows => {
           $scope.services = [];
@@ -41,9 +53,11 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
             obj.efs = v.efs;
             obj.an = v.an;
             $scope.services.push(obj);
-          })
+          });
+          myBlockUI.stop();
         }, err => {
           console.log(err);
+          myBlockUI.stop();
         });
     }
 
@@ -68,6 +82,9 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
     }
 
     $scope.getEmr = (vn, an) => {
+
+      detailBlockUI.start();
+
       $scope.ipd = {};
       $scope.screen = [];
       $scope.drugs = [];
@@ -82,6 +99,8 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
       if (an) {
         $scope.getIpt(an)
       }
+
+      detailBlockUI.stop();
     }
 
     $scope.getScreenData = (vn) => {
