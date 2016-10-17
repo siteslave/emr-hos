@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>EMR@HOS</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./node_modules/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="./dist/css/style.css">
+  </head>
+  <body>
+    <div class="container" ng-controller="LoginCtrl">
+        <div class="row" style="padding-top: 100px;">
+            <div class="offset-md-4 col-md-4">
+                <h1 class="text-md-center login-title">Sign in to emr@hos</h1>
+                <div class="account-wall">
+                    <img class="profile-img" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=120"
+                        alt="">
+                    <form class="form-signin" name="frmLogin">
+                      <input type="text"ng-model="username" class="form-control" placeholder="Username" required autofocus>
+                      <input type="password" ng-model="password" class="form-control" placeholder="Password" required>
+                      <button ng-click="login()" ng-disabled="frmLogin.$invalid" class="btn btn-lg btn-primary btn-block" type="submit">
+                        Sign in
+                      </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    require('./login.js')
+  </script>
+</html>

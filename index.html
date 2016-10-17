@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>EMR@HOS</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./node_modules/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="./dist/css/style.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-primary" ng-controller="NavCtrl">
+      <a class="navbar-brand" href="#">
+        <i class="fa fa-windows"></i>
+        EMR@HOS : {{ hospitalName }}
+        </a>
+      <ul class="nav navbar-nav pull-xs-right">
+        <li class="nav-item">
+          <a class="nav-link" href="#" ng-click="showDebug()">
+            <i class="fa fa-eye"></i> Debug
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" ng-click="refresh()">
+            <i class="fa fa-refresh"></i> Refresh
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-name="btnSettings">
+            <i class="fa fa-cogs"></i> Settings</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="grid" ng-controller="MainCtrl">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card" style="padding: 5px; margin-bottom: 0px;">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="ระบุ HN 7 หลัก" ng-model="txtQuery" ng-keypress="doSearchEnter($event)">
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-primary" ng-click="search()" ng-disabled="!txtQuery">
+                  <i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+          </div>
+          <div class="card text-xs-center">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs pull-xs-left">
+                <!--<li class="nav-item">
+                  <a class="nav-link active" data-toggle="tab" href="#tabMainInfo">ทั่วไป</a>
+                </li>-->
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="tab" href="#tabMainHOSxP" ng-click="getHOSEmr()">HOSxP</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabMainHDC" ng-click="activeHDCTab()">HDC</a>
+                </li>
+              </ul>
+            </div>
+            <div class="card-block text-justify" style="height: 500px; overflow-y: scroll;">
+              <div class="tab-content">
+                <div class="tab-pane active" id="tabMainHOSxP" role="tabpanel">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>วันที่/เวลา</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-if="!services.length">
+                        <td colspan="3">กรุณาค้นหา...</td>
+                      </tr>
+                      <tr ng-repeat="s in services" ng-if="services.length"  ng-class="{'table-info': s.labs}">
+                        <th scope="row">{{ $index + 1 }}</th>
+                        <th  scope="row">
+                        <span ng-class="{'text-danger': s.an}">{{ s.vstdate }} {{ s.vsttime }}</span>
+                          <i class="fa fa-eye" ng-if="s.efs"></i>
+                          <br />
+                        <small class="text-info">{{ s.department }}</small>
+                        </th>
+                        <td>
+                          <button type="button" class="btn btn-outline-success btn-sm" ng-click="getEmr(s.vn, s.an)">
+                            <i class="fa fa-search"></i>
+                          </button>
+                        </td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+                  <!--<div class="list-group m-a-0" data-name="listServices"></div>-->
+                </div>
+                <div class="tab-pane" id="tabMainHDC" role="tabpanel">
+                   <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>วันที่/เวลา</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-if="!services.length">
+                        <td colspan="3">กรุณาค้นหา...</td>
+                      </tr>
+                      <tr ng-repeat="s in servicesHDC" ng-if="servicesHDC.length" ng-class="{'table-info': s.LABS}">
+                        <th scope="row">{{ $index + 1 }}</th>
+                        <th  scope="row">
+                        <span ng-class="{'text-danger': s.AN}">{{ s.DATE_SERV }} {{ s.TIME_SERV }}</span>
+                          <i class="fa fa-eye" ng-if="s.efs"></i>
+                          <br />
+                        <small class="text-info">{{ s.HOSPNAME }}</small>
+                        </th>
+                        <td>
+                          <button type="button" class="btn btn-outline-success btn-sm" ng-click="getHDCEmr(s)">
+                            <i class="fa fa-search"></i>
+                          </button>
+                        </td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-9">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">EMR</a></li>
+            <li class="breadcrumb-item active">{{ infoCID }}</li>
+            <li class="breadcrumb-item active">{{ infoFullname }}</li>
+            <li class="breadcrumb-item active">{{ infoAddress }}</li>
+          </ol>
+
+          <div class="card text-xs-center" ng-show="isHOS">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs pull-xs-left">
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="tab" href="#tabEmrScreen">
+                    <i class="fa fa-eye"></i>
+                    Screen/ตรวจ [HOS]
+                    </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrDrug">
+                    <i class="fa fa-medkit"></i>
+                    ยา [HOS]
+                    </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrLabs">
+                    <i class="fa fa-flask"></i>
+                    LAB [HOS]
+                    </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrIpd">
+                    <i class="fa fa-bed"></i>
+                    ผู้ป่วยใน [HOS]
+                    </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrEyeFootScreen">
+                    <i class="fa fa-street-view"></i>
+                    ตรวจตา/เท้า [HOS]
+                    </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="card-block text-justify" style="height: 500px; overflow-y: scroll;">
+              <div class="tab-content">
+                <div class="tab-pane active" id="tabEmrScreen" role="tabpanel">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th colspan="10">ผลการตรวจร่างกาย/วินิจฉัย</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>วันที่</th>
+                        <td>{{ screen.vstdate }}</td>
+                        <th>เวลา</th>
+                        <td>{{ screen.vsttime }}</td>
+                        <th>สิทธิรักษา</th>
+                        <td colspan="5">{{ screen.pttype_name }}</td>
+                      </tr>
+                      <tr>
+                        <th>CC</th>
+                        <td colspan="9">{{ screen.cc }}</td>
+                      </tr>
+                      <tr>
+                        <th>การวินิจฉัย</th>
+                        <td colspan="9">{{ screen.icd10 }} {{ screen.diagname }}</td>
+                      </tr>
+                      <tr>
+                        <th>น้ำหนัก (Kg)</th>
+                        <td>{{ screen.bw }}</td>
+                        <th>อุณหภูมิ (C)</th>
+                        <td>{{ screen.temperature }}</td>
+                        <th>ชีพจร</th>
+                        <td>{{ screen.pulse }}</td>
+                        <th>อัตราหายใจ</th>
+                        <td>{{ screen.rr }}</td>
+                        <th>ความดัน</th>
+                        <td>{{ screen.bps }}/{{ screen.bpd }}</td>
+                      </tr>   
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabEmrDrug" role="tabpanel">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>รายการ</th>
+                        <th>วันที่/เวลา</th>
+                        <th>วิธีใช้</th>
+                        <th>จำนวน</th>
+                        <th>หน่วย</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-if="!drugs.length">
+                        <td colspan="6">ไม่พบรายการ</td>
+                      </tr>
+                      <tr ng-repeat="d in drugs" ng-if="drugs.length">
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ d.drugname }}</td>
+                        <td>{{ d.rxdate }} {{ d.rxtime }}</td>
+                        <td>{{ d.code }}</td>
+                        <td class="text-right">{{ d.qty | number }}</td>
+                        <td> {{ d.units }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabEmrLabs" role="tabpanel">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>วันที่/เวลา</th>
+                        <th>รายการ</th>
+                        <th>ผล</th>
+                        <th>หน่วย</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-if="!labs.length">
+                        <td colspan="5">ไม่พบรายการ</td>
+                      </tr>
+                      <tr ng-repeat="l in labs" ng-if="labs.length">
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ l.order_date }} {{ l.order_time }}</td>
+                        <td>{{ l.lab_items_name }}</td>
+                        <td>{{ l.lab_order_result }}</td>
+                        <td>{{ l.lab_items_unit }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabEmrIpd" role="tabpanel">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th colspan="10">ข้อมูลการนอนโรงพยาบาล</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>AN</th>
+                        <td>{{ ipd.an }}</td>
+                        <th>สิทธิรักษา</th>
+                        <td colspan="5">{{ ipd.pttype_name }}</td>
+                      </tr>
+                      <tr>
+                        <th>วันที่ Admit</th>
+                        <td>{{ ipd.regdate }}</td>
+                        <th>เวลา</th>
+                        <td>{{ ipd.regtime }}</td>
+                        <th>วันที่จำหน่าย</th>
+                        <td>{{ ipd.dchdate }}</td>
+                        <th>เวลา</th>
+                        <td>{{ ipd.dchtime }}</td>
+                      </tr>
+                      <tr>
+                        <th>จุด Admit</th>
+                        <td colspan="3">{{ ipd.spclty_name }}</td>
+                        <th>Ward</th>
+                        <td colspan="3">{{ ipd.ward_name }}</td>
+                      </tr>
+                      <tr>
+                        <th>การวินิจฉัย</th>
+                        <td colspan="7">{{ ipd.icd10 }} - {{ ipd.diagname }}</td>
+                      </tr>
+                      <tr>
+                        <th>สถานะจำหน่าย</th>
+                        <td colspan="3">{{ ipd.dchstts_name }}</td>
+                        <th>ประเภทจำหน่าย</th>
+                        <td colspan="3">{{ ipd.dchtype_name }}</td>
+                      </tr> 
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabEmrEyeFootScreen" role="tabpanel">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>รายการ</th>
+                        <th>ซ้าย</th>
+                        <th>ขวา</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>ตา</th>
+                        <td>{{ efs.eye_left }}</td>
+                        <td>{{ efs.eye_right }}</td>
+                      </tr>
+                      <tr>
+                        <th>เท้า</th>
+                        <td>{{ efs.foot_left }}</td>
+                        <td>{{ efs.foot_right }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- end hos emr -->
+          <!-- start hdc emr -->
+          <div class="card text-xs-center" ng-show="isHDC">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs pull-xs-left">
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="tab" href="#tabEmrHDCScreen">
+                    <i class="fa fa-eye"></i>
+                    Screen/ตรวจ [HDC]
+                    </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrHDCDrug">
+                    <i class="fa fa-medkit"></i>
+                    ยา [HDC]
+                    </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrHDCLabs">
+                    <i class="fa fa-flask"></i>
+                    LAB [HDC]
+                    </a>
+                </li>
+                <!--<li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrHDCIpd">
+                    <i class="fa fa-bed"></i>
+                    ผู้ป่วยใน [HDC]
+                    </a>
+                </li>-->
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#tabEmrHDCEyeFootScreen">
+                    <i class="fa fa-street-view"></i>
+                    ตรวจตา/เท้า [HDC]
+                    </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="card-block text-justify" style="height: 500px; overflow-y: scroll;">
+              <div class="tab-content">
+                <div class="tab-pane active" id="tabEmrHDCScreen" role="tabpanel">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th colspan="8">ผลการตรวจร่างกาย/วินิจฉัย</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>วันที่</th>
+                        <td>{{ hdcScreen.DATE_SERV }}</td>
+                        <th>เวลา</th>
+                        <td>{{ hdcScreen.TIME_SERV }}</td>
+                        <th>สิทธิรักษา</th>
+                        <td colspan="3">{{ hdcScreen.INSTYPE_NAME }} - {{ hdcScreen.INSID }}</td>
+                      </tr>
+                      <tr>
+                        <th>CC</th>
+                        <td colspan="7">{{ hdcScreen.CHIEFCOMP }}</td>
+                      </tr>
+                      <tr>
+                        <th>การวินิจฉัย</th>
+                        <td colspan="7">{{ hdcScreen.DIAGCODE }} {{ hdcScreen.DIAG_NAME }}</td>
+                      </tr>
+                      <tr>
+                        <!--<th>น้ำหนัก (Kg)</th>
+                        <td>{{ hdcScreen.bw }}</td>-->
+                        <th>อุณหภูมิ (C)</th>
+                        <td>{{ hdcScreen.BTEMP }}</td>
+                        <th>ชีพจร</th>
+                        <td>{{ hdcScreen.PR }}</td>
+                        <th>อัตราหายใจ</th>
+                        <td>{{ hdcScreen.RR }}</td>
+                        <th>ความดัน</th>
+                        <td>{{ hdcScreen.SBP }}/{{ hdcScreen.DBP }}</td>
+                      </tr> 
+                      <tr>
+                        <th>รับจาก</th>  
+                        <td colspan="7"><span class="text-danger">{{ hdcScreen.REFERINHOSP }} - {{ hdcScreen.REFERINHOSP_NAME }}</span></td>
+                      </tr>  
+                      <tr>
+                        <th>ส่งต่อ</th>  
+                        <td colspan="7"><span class="text-danger">{{ hdcScreen.REFEROUTHOSP }} - {{ hdcScreen.REFEROUTHOSP_NAME }}</span></td>
+                      </tr>  
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabEmrHDCDrug" role="tabpanel">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>รายการ</th>
+                        <th>จำนวน</th>
+                        <th>หน่วย</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-if="!hdcDrugs.length">
+                        <td colspan="4">ไม่พบรายการ</td>
+                      </tr>
+                      <tr ng-repeat="d in hdcDrugs" ng-if="hdcDrugs.length">
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ d.DNAME }}</td>
+                        <td class="text-right">{{ d.AMOUNT | number }}</td>
+                        <td> {{ d.UNIT }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="tab-pane" id="tabEmrHDCLabs" role="tabpanel">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>รายการ</th>
+                        <th>ผล</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-if="!hdcLabs.length">
+                        <td colspan="3">ไม่พบรายการ</td>
+                      </tr>
+                      <tr ng-repeat="l in hdcLabs" ng-if="hdcLabs.length">
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ l.LABNAME }}</td>
+                        <td>{{ l.LABRESULT }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!--<div class="tab-pane" id="tabEmrHDCIpd" role="tabpanel">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th colspan="10">ข้อมูลการนอนโรงพยาบาล</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>AN</th>
+                        <td>{{ ipd.an }}</td>
+                        <th>สิทธิรักษา</th>
+                        <td colspan="5">{{ ipd.pttype_name }}</td>
+                      </tr>
+                      <tr>
+                        <th>วันที่ Admit</th>
+                        <td>{{ ipd.regdate }}</td>
+                        <th>เวลา</th>
+                        <td>{{ ipd.regtime }}</td>
+                        <th>วันที่จำหน่าย</th>
+                        <td>{{ ipd.dchdate }}</td>
+                        <th>เวลา</th>
+                        <td>{{ ipd.dchtime }}</td>
+                      </tr>
+                      <tr>
+                        <th>จุด Admit</th>
+                        <td colspan="3">{{ ipd.spclty_name }}</td>
+                        <th>Ward</th>
+                        <td colspan="3">{{ ipd.ward_name }}</td>
+                      </tr>
+                      <tr>
+                        <th>การวินิจฉัย</th>
+                        <td colspan="7">{{ ipd.icd10 }} - {{ ipd.diagname }}</td>
+                      </tr>
+                      <tr>
+                        <th>สถานะจำหน่าย</th>
+                        <td colspan="3">{{ ipd.dchstts_name }}</td>
+                        <th>ประเภทจำหน่าย</th>
+                        <td colspan="3">{{ ipd.dchtype_name }}</td>
+                      </tr> 
+                    </tbody>
+                  </table>
+                </div>-->
+                <div class="tab-pane" id="tabEmrHDCEyeFootScreen" role="tabpanel">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>รายการ</th>
+                        <th>ซ้าย</th>
+                        <th>ขวา</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>ตา</th>
+                        <td>{{ efs.eye_left }}</td>
+                        <td>{{ efs.eye_right }}</td>
+                      </tr>
+                      <tr>
+                        <th>เท้า</th>
+                        <td>{{ efs.foot_left }}</td>
+                        <td>{{ efs.foot_right }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- end hdc emr -->
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    require('./index.js')
+  </script>
+</html>
