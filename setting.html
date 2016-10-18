@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>EMR@HOS</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./node_modules/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="./dist/css/style.css">
+  </head>
+  <body ng-controller="SettingCtrl">
+    <nav class="navbar navbar-dark bg-primary">
+      <a class="navbar-brand" href="#">
+        <i class="fa fa-windows"></i>
+        EMR@HOS : Settings
+        </a>
+      <ul class="nav navbar-nav pull-xs-right">
+        <li class="nav-item">
+          <a class="nav-link" href="#" ng-click="refresh()">
+            <i class="fa fa-refresh"></i> Refresh
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="container">
+        <div class="row" style="padding-top: 50px;">
+            <div class="offset-md-2 col-md-8">
+
+              <div class="card text-xs-center">
+                <div class="card-header">
+                  <ul class="nav nav-tabs card-header-tabs pull-xs-left">
+                    <li class="nav-item">
+                      <a class="nav-link active" data-toggle="tab" href="#tabHOSxP">เชื่อมต่อ HOSxP</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#tabCloud" data-toggle="tab">เชื่อมต่อ Cloud/HDC</a>
+                    </li>
+                  </ul>
+                </div>
+                <div class="card-block text-justify">
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="tabHOSxP" role="tabpanel">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <div class="form-group">
+                            <label>Host/IP</label>
+                            <input type="text" ng-model="config.host" class="form-control" placeholder="ที่อยู่เครื่องแม่ข่าย (ชื่อ/ไอพี)">
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label>Port</label>
+                            <input type="number" ng-model="config.port" class="form-control" placeholder="พอร์ทที่ใช้งาน">
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="form-group">
+                        <label>Database</label>
+                        <input type="text" class="form-control" ng-model="config.database" placeholder="ชื่อฐานข้อมูล">
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" ng-model="config.user" class="form-control" placeholder="ชื่อผู้ใช้งานฐานข้อมูล">
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" ng-model="config.password" class="form-control" placeholder="xxxxxx">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane" id="tabCloud" role="tabpanel">
+                      <div class="form-group">
+                        <label>Cloud url</label>
+                        <input type="text" ng-model="config.url" class="form-control" placeholder="http://localhost:3000">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer text-muted">
+                  <button class="btn btn-primary" ng-click="save()">
+                    <i class="fa fa-save"></i> บันทึก
+                  </button>
+                  <a class="btn btn-default" href="./login.html">
+                    <i class="fa fa-home"></i> กลับหน้าล๊อกอิน
+                  </a>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    require('./setting.js')
+  </script>
+</html>

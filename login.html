@@ -18,11 +18,15 @@
                     <img class="profile-img" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=120"
                         alt="">
                     <form class="form-signin" name="frmLogin">
-                      <input type="text"ng-model="username" class="form-control" placeholder="Username" required autofocus>
-                      <input type="password" ng-model="password" class="form-control" placeholder="Password" required>
-                      <button ng-click="login()" ng-disabled="frmLogin.$invalid" class="btn btn-lg btn-primary btn-block" type="submit">
-                        Sign in
+                      <input type="text"ng-model="username" class="form-control" placeholder="ชื่อผู้ใช้งาน" required autofocus>
+                      <input type="password" ng-model="password" class="form-control" placeholder="รหัสผ่าน" required>
+                      <button ng-click="login()" ng-disabled="frmLogin.$invalid" 
+                      class="btn btn-lg btn-primary btn-block" type="button">
+                        เข้าใช้งาน
                       </button>
+                      <a href="./setting.html" class="btn btn-lg btn-default btn-block" type="button">
+                        ตั้งค่าการเชื่อมต่อ
+                      </a>
                     </form>
                 </div>
             </div>

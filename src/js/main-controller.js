@@ -1,10 +1,15 @@
 let moment = require('moment');
 
+const Config = require('electron-config');
+const config = new Config();
+
 angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
-  .controller('MainCtrl', ($scope, $rootScope, HOSService, HDCService, blockUI) => {
+  .controller('MainCtrl', ($scope, $rootScope, $window, HOSService, HDCService, blockUI) => {
     $scope.isHDC = false;
     $scope.isHOS = true;
 
+    $rootScope.token = config.get('token');
+    console.log($rootScope.token);
     // $scope.progressbar = ngProgressFactory.createInstance();
 
     $scope.getHOSEmr = () => {
@@ -183,79 +188,59 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
     };
     
     $scope.getHDCService = () => {
+      if ($rootScope.cid) {
+        HDCService.getServices($rootScope.token, $rootScope.cid)
+          .then(rows => {
+            rows.forEach(v => {
+              let obj = {};
+              obj.HOSPCODE = v.HOSPCODE;
+              obj.SEQ = v.SEQ;
+              obj.PID = v.PID;
+              obj.LABS = v.LABS;
+              obj.AN = v.AN;
+              obj.ORG_DATE_SERV = v.DATE_SERV;
+              obj.DATE_SERV = v.DATE_SERV;
+              obj.TIME_SERV = v.TIME_SERV;
+              obj.DATE_SERV = `${moment(v.DATE_SERV).format('DD/MM')}/${moment(v.DATE_SERV).get('year') + 543}`;
+              obj.TIME_SERV = moment(v.TIME_SERV, 'HH:mm:ss').format('HH:mm');
+              obj.HOSPNAME = v.HOSPNAME;
 
-      HDCService.getHPID($rootScope.cid)
-        .then(hpids => {
-          // console.log(rows)
-          if (hpids) {
-            let _hpids = [];
-            hpids.forEach(v => {
-              _hpids.push(v.hpid)
-            })
-            HDCService.getServices(_hpids)
-              .then(rows => {
-                rows.forEach(v => {
-                  let obj = {};
-                  obj.HOSPCODE = v.HOSPCODE;
-                  obj.SEQ = v.SEQ;
-                  obj.PID = v.PID;
-                  obj.LABS = v.LABS;
-                  obj.AN = v.AN;
-                  obj.ORG_DATE_SERV = v.DATE_SERV;
-                  obj.DATE_SERV = `${moment(v.DATE_SERV).format('DD/MM')}/${moment(v.DATE_SERV).get('year') + 543}`;
-                  obj.TIME_SERV = moment(v.TIME_SERV, 'HH:mm:ss').format('HH:mm');
-                  obj.HOSPNAME = v.HOSPNAME;
-
-                  $scope.servicesHDC.push(obj)
-                })
-              }, err => {
-                console.log(err)
-              });
-          } else {
-            console.log('No visits')
-          }
-        }, err => {
-          console.log(err)
-        });
+              $scope.servicesHDC.push(obj)
+            });
+          }, err => {
+            alert(JSON.stringify(err))
+          });
+      } else {
+        alert('กรุณาระบุ เลขที่บัตรประชาชน')
+      }
+      
     }
 
     $scope.getHDCEmr = (service) => {
 
+      detailBlockUI.start();
+      
       $scope.hdcScreen = {};
       $scope.hdcDrugs = [];
       $scope.hdcLabs = [];
-      console.log(service)
-      $scope.getHDCScreenData(service.HOSPCODE, service.PID, service.SEQ);
-      $scope.getHDCDrugOPD(service.HOSPCODE, service.PID, service.SEQ);
-      $scope.getHDCLab(service.HOSPCODE, service.PID, service.SEQ);
-    }
 
-    $scope.getHDCScreenData = (hospcode, pid, seq) => {
-      HDCService.getScreenData(hospcode, pid, seq)
+      HDCService.getScreenData($rootScope.token, service.HOSPCODE, service.PID, service.SEQ)
         .then(screen => {
           $scope.hdcScreen = screen;
           $scope.hdcScreen.DATE_SERV = `${moment(screen.DATE_SERV).format('DD/MM')}/${moment(screen.DATE_SERV).get('year') + 543}`;
           $scope.hdcScreen.TIME_SERV = moment(screen.TIME_SERV, 'HHmmss').format('HH:mm:ss');
-        }, err => {
-          console.log(err)
-        });
-    }
-
-    $scope.getHDCDrugOPD = (hospcode, pid, seq) => {
-      HDCService.getDrugOPD(hospcode, pid, seq)
+          return HDCService.getDrugOPD($rootScope.token, service.HOSPCODE, service.PID, service.SEQ);
+        })
         .then(rows => {
           $scope.hdcDrugs = rows;
-        }, err => {
-          console.log(err)
-        });
-    }
-
-    $scope.getHDCLab = (hospcode, pid, seq) => {
-      HDCService.getLab(hospcode, pid, seq)
+          return HDCService.getLab($rootScope.token, service.HOSPCODE, service.PID, service.SEQ);
+        })
         .then(rows => {
           $scope.hdcLabs = rows;
+          detailBlockUI.stop();
         }, err => {
-          console.log(err)
+          detailBlockUI.stop();
+          alert(JSON.stringify(err));
         });
     }
 
