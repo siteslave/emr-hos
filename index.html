@@ -111,7 +111,7 @@
                         <th scope="row">{{ $index + 1 }}</th>
                         <th  scope="row">
                         <span ng-class="{'text-danger': s.AN}">{{ s.DATE_SERV }} {{ s.TIME_SERV }}</span>
-                          <i class="fa fa-eye" ng-if="s.efs"></i>
+                          <i class="fa fa-eye" ng-if="s.EFS"></i>
                           <br />
                         <small class="text-info">{{ s.HOSPNAME }}</small>
                         </th>
@@ -359,12 +359,12 @@
                     LAB [HDC]
                     </a>
                 </li>
-                <!--<li class="nav-item">
+                <li class="nav-item">
                   <a class="nav-link" data-toggle="tab" href="#tabEmrHDCIpd">
                     <i class="fa fa-bed"></i>
                     ผู้ป่วยใน [HDC]
                     </a>
-                </li>-->
+                </li>
                 <li class="nav-item">
                   <a class="nav-link" data-toggle="tab" href="#tabEmrHDCEyeFootScreen">
                     <i class="fa fa-street-view"></i>
@@ -428,6 +428,7 @@
                     <thead>
                       <tr>
                         <th>#</th>
+                        <th>วันที่</th>
                         <th>รายการ</th>
                         <th>จำนวน</th>
                         <th>หน่วย</th>
@@ -435,10 +436,11 @@
                     </thead>
                     <tbody>
                       <tr ng-if="!hdcDrugs.length">
-                        <td colspan="4">ไม่พบรายการ</td>
+                        <td colspan="5">ไม่พบรายการ</td>
                       </tr>
                       <tr ng-repeat="d in hdcDrugs" ng-if="hdcDrugs.length">
                         <td>{{ $index + 1 }}</td>
+                        <td>{{ d.DATESTART }}</td>
                         <td>{{ d.DNAME }}</td>
                         <td class="text-right">{{ d.AMOUNT | number }}</td>
                         <td> {{ d.UNIT }}</td>
@@ -467,7 +469,7 @@
                     </tbody>
                   </table>
                 </div>
-                <!--<div class="tab-pane" id="tabEmrHDCIpd" role="tabpanel">
+                <div class="tab-pane" id="tabEmrHDCIpd" role="tabpanel">
                   <table class="table table-sm">
                     <thead>
                       <tr>
@@ -477,62 +479,58 @@
                     <tbody>
                       <tr>
                         <th>AN</th>
-                        <td>{{ ipd.an }}</td>
+                        <td>{{ hdcAdmission.AN }}</td>
                         <th>สิทธิรักษา</th>
-                        <td colspan="5">{{ ipd.pttype_name }}</td>
+                        <td colspan="5">{{ hdcAdmission.INSTYPE_NAME }}</td>
                       </tr>
                       <tr>
                         <th>วันที่ Admit</th>
-                        <td>{{ ipd.regdate }}</td>
+                        <td>{{ hdcAdmission.ADMDATE }}</td>
                         <th>เวลา</th>
-                        <td>{{ ipd.regtime }}</td>
+                        <td>{{ hdcAdmission.ADMTIME }}</td>
                         <th>วันที่จำหน่าย</th>
-                        <td>{{ ipd.dchdate }}</td>
+                        <td>{{ hdcAdmission.DCHDATE }}</td>
                         <th>เวลา</th>
-                        <td>{{ ipd.dchtime }}</td>
-                      </tr>
-                      <tr>
-                        <th>จุด Admit</th>
-                        <td colspan="3">{{ ipd.spclty_name }}</td>
-                        <th>Ward</th>
-                        <td colspan="3">{{ ipd.ward_name }}</td>
+                        <td>{{ hdcAdmission.DCHTIME }}</td>
                       </tr>
                       <tr>
                         <th>การวินิจฉัย</th>
-                        <td colspan="7">{{ ipd.icd10 }} - {{ ipd.diagname }}</td>
+                        <td colspan="7">{{ hdcAdmission.DIAG_CODE }} - {{ hdcAdmission.DIAG_NAME }}</td>
                       </tr>
                       <tr>
                         <th>สถานะจำหน่าย</th>
-                        <td colspan="3">{{ ipd.dchstts_name }}</td>
+                        <td colspan="3">{{ hdcAdmission.DISCHSTATUS_NAME }}</td>
                         <th>ประเภทจำหน่าย</th>
-                        <td colspan="3">{{ ipd.dchtype_name }}</td>
+                        <td colspan="3">{{ hdcAdmission.DISCHTYPE_NAME }}</td>
+                      </tr> 
+                      <tr>
+                        <th>ส่งไปที่</th>
+                        <td colspan="7">{{ hdcAdmission.REFEROUTHOSP }} - {{ hdcAdmission.REFEROUTHOSP_NAME }}</td>
                       </tr> 
                     </tbody>
                   </table>
-                </div>-->
+                </div>
                 <div class="tab-pane" id="tabEmrHDCEyeFootScreen" role="tabpanel">
                   <table class="table table-sm">
                     <thead>
                       <tr>
                         <th>รายการ</th>
-                        <th>ซ้าย</th>
-                        <th>ขวา</th>
+                        <th>ผล</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <th>ตา</th>
-                        <td>{{ efs.eye_left }}</td>
-                        <td>{{ efs.eye_right }}</td>
+                        <td>{{ hdcEFS.RETINA_RESULT }}</td>
                       </tr>
                       <tr>
                         <th>เท้า</th>
-                        <td>{{ efs.foot_left }}</td>
-                        <td>{{ efs.foot_right }}</td>
+                        <td>{{ hdcEFS.FOOT_RESULT }}</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+
               </div>
 
             </div>

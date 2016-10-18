@@ -197,6 +197,7 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
               obj.SEQ = v.SEQ;
               obj.PID = v.PID;
               obj.LABS = v.LABS;
+              obj.EFS = v.EFS;
               obj.AN = v.AN;
               obj.ORG_DATE_SERV = v.DATE_SERV;
               obj.DATE_SERV = v.DATE_SERV;
@@ -218,25 +219,66 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
 
     $scope.getHDCEmr = (service) => {
 
+      // console.log(service)      
       detailBlockUI.start();
       
       $scope.hdcScreen = {};
+      $scope.hdcAdmission = {};
       $scope.hdcDrugs = [];
       $scope.hdcLabs = [];
+      $scope.hdcEFS = {};
+
 
       HDCService.getScreenData($rootScope.token, service.HOSPCODE, service.PID, service.SEQ)
         .then(screen => {
           $scope.hdcScreen = screen;
           $scope.hdcScreen.DATE_SERV = `${moment(screen.DATE_SERV).format('DD/MM')}/${moment(screen.DATE_SERV).get('year') + 543}`;
           $scope.hdcScreen.TIME_SERV = moment(screen.TIME_SERV, 'HHmmss').format('HH:mm:ss');
-          return HDCService.getDrugOPD($rootScope.token, service.HOSPCODE, service.PID, service.SEQ);
+          return service.AN ? HDCService.getDrugIPD($rootScope.token, service.HOSPCODE, service.PID, service.AN) :
+          HDCService.getDrugOPD($rootScope.token, service.HOSPCODE, service.PID, service.SEQ);
         })
         .then(rows => {
-          $scope.hdcDrugs = rows;
+          $scope.hdcDrugs = [];
+
+          if (service.AN) { // drug ipd
+            rows.forEach(v => {
+              let obj = {};
+              obj.AMOUNT = v.AMOUNT;
+              obj.DATESTART = `${moment(v.DATESTART).format('DD/MM')}/${moment(v.DATESTART).get('year') + 543}`;
+              obj.DNAME = v.DNAME;
+              obj.UNIT = v.UNIT;
+              $scope.hdcDrugs.push(obj);
+              console.log(obj)
+            });
+          } else { // drug opd
+            rows.forEach(v => {
+              let obj = {};
+              obj.AMOUNT = v.AMOUNT;
+              obj.DNAME = v.DNAME;
+              obj.UNIT = v.UNIT;
+              $scope.hdcDrugs.push(obj);
+            });
+          }
+      
           return HDCService.getLab($rootScope.token, service.HOSPCODE, service.PID, service.SEQ);
         })
         .then(rows => {
           $scope.hdcLabs = rows;
+          return HDCService.getAdmission($rootScope.token, service.HOSPCODE, service.PID, service.AN)
+        })
+        .then(admission => { 
+          $scope.hdcAdmission = admission;
+          if (admission) {
+            $scope.hdcAdmission.ADMDATE = `${moment(admission.DATETIME_ADMIT).format('DD/MM')}/${moment(admission.DATETIME_ADMIT).get('year') + 543}`;
+            $scope.hdcAdmission.ADMTIME = moment(admission.DATETIME_ADMIT).format('HH:mm:ss');
+
+            $scope.hdcAdmission.DCHDATE = `${moment(admission.DATETIME_DISCH).format('DD/MM')}/${moment(admission.DATETIME_DISCH).get('year') + 543}`;
+            $scope.hdcAdmission.DCHTIME = moment(admission.DATETIME_DISCH).format('HH:mm:ss');
+          }
+          return HDCService.getEFS($rootScope.token, service.HOSPCODE, service.PID, service.SEQ);
+        })
+        .then(efs => {
+          $scope.hdcEFS = efs;
           detailBlockUI.stop();
         }, err => {
           detailBlockUI.stop();
