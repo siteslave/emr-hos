@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>EMR@HOS</title>
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="../node_modules/angular-block-ui/dist/angular-block-ui.css">
+    <link rel="stylesheet" href="../dist/css/style.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-primary" ng-controller="NavCtrl">
+      <a class="navbar-brand" href="#">
+        <i class="fa fa-windows"></i>
+        EMR@HOS : {{ hospitalName }}
+        </a>
+      <ul class="nav navbar-nav pull-xs-right">
+        <li class="nav-item">
+          <a class="nav-link" href="#/lab">
+            <i class="fa fa-ambulance"></i> ระบบงานห้อง LAB
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" style="cursor: pointer" ng-click="showDebug()">
+            <i class="fa fa-eye"></i> Debug
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" style="cursor: pointer" ng-click="refresh()">
+            <i class="fa fa-refresh"></i> Refresh
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./setting.html" data-name="btnSettings">
+            <i class="fa fa-cogs"></i> Settings</a>
+        </li>
+      </ul>
+    </nav>
+    <!--End Navbar -->
+    <ui-view></ui-view>
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    require('../dist/js/app.js')
+  </script>
+</html>

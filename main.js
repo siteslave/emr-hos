@@ -14,14 +14,15 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1124,
-    height: 700,
+    height: 780,
     frame: true,
     resizable : false
   })
 
   // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/login.html`)
+  mainWindow.loadURL(`file://${__dirname}/templates/login.html`)
 
+  console.log(app.getLocale())  
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
 

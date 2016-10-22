@@ -20,13 +20,13 @@ angular.module('app.controllers.Main', ['app.services.HOS', 'app.services.HDC'])
     let myBlockUI = blockUI.instances.get('myBlockUI');
     let detailBlockUI = blockUI.instances.get('detailBlockUI');
 
-    blockUI.start();
+    // blockUI.start();
     
-    HOSService.getHospitalname()
-      .then(hospitalName => {
-        $scope.hospitalName = hospitalName;
-        blockUI.stop();
-      });
+    // HOSService.getHospital()
+    //   .then(hospital => {
+    //     $scope.hospitalName = hospitalName;
+    //     blockUI.stop();
+    //   });
 
     $scope.doSearchEnter = (event) => {
       if (event.charCode == 13) $scope.search();

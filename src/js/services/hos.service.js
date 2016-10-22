@@ -1,11 +1,11 @@
 
-let config = require('./configure');
+let config = require('../configure');
 let pool = config.getHOSxPConnectionPool();
 
 angular.module('app.services.HOS', [])
   .factory('HOSService', ($q) => {
     return {
-      getHospitalname() {
+      getHospital() {
         let q = $q.defer();
         pool.getConnection((err, conn) => {
           if (err) {
@@ -14,7 +14,37 @@ angular.module('app.services.HOS', [])
           } else {
             conn.query('SELECT * FROM opdconfig', (err, rows) => {
               if (err) q.reject(err);
-              else q.resolve(rows[0].hospitalname)
+              else q.resolve(rows[0])
+            });
+
+            conn.release()
+          }
+        });
+
+        return q.promise;
+      },
+
+      searchPerson(query) {
+        let q = $q.defer();
+        pool.getConnection((err, conn) => {
+          if (err) {
+            console.log(err)
+            q.reject(err)
+          } else {
+            let sql = `select p.cid, p.patient_hn, concat(p.pname, p.fname, " ", p.lname) as fullname,
+              v.address_id, v.village_moo, v.village_name, p.sex,
+              concat(h.address, " หมู่ ", v.village_moo, " ", v.village_name, "  ต. ", tmb.name, " อ.", amp.name, " จ.", chw.name) as fulladdress
+              from person as p
+              inner join house as h on h.house_id=p.house_id
+              inner join village as v on v.village_id=h.village_id
+              left join thaiaddress as chw on chw.addressid=concat(substr(address_id, 1, 2),'0000')
+              left join thaiaddress as amp on amp.addressid=concat(substr(address_id, 1, 2),substr(address_id, 3, 2), '00')
+              left join thaiaddress as tmb on tmb.addressid=concat(substr(address_id, 1, 2),substr(address_id, 3, 2),substr(address_id, 5, 2))
+              where (p.patient_hn=? or p.fname like ?) order by p.fname, p.lname limit 150`;
+            let _query = `%${query}%`
+            conn.query(sql, [query, _query], (err, rows) => {
+              if (err) q.reject(err);
+              else q.resolve(rows)
             });
 
             conn.release()

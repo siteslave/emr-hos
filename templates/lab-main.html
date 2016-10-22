@@ -1,0 +1,132 @@
+<div class="m-l-1 m-r-1">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#/">Home</a></li>
+    <li class="breadcrumb-item active">สั่ง LAB Online</li>
+  </ol>
+
+<div class="row">
+  <div class="col-md-5">
+
+    <div class="card text-xs-center">
+      <div class="card-header">
+        <ul class="nav nav-pills card-header-tabs pull-xs-left">
+          <li class="nav-item" style="cursor: pointer">
+            <a class="nav-link active" data-toggle="tab"  ng-click="showPatientTab()">
+              <i class="fa fa-send"></i> ประวัติการส่ง LAB</a>
+          </li>
+          <li class="nav-item" style="cursor: pointer;" >
+            <a class="nav-link" data-toggle="tab" ng-click="showLabTab()">
+              <i class="fa fa-remove"></i> รายการยกเลิก</a>
+          </li>
+        </ul>
+        <a class="btn btn-sm btn-outline-primary" ui-sref="lab-order" style="float: right;">
+          <i class="fa fa-plus"></i> สั่ง LAB
+        </a>
+      </div>
+      <div class="card-block text-justify" style="height: 520px; overflow-y: scroll; overflow-x: hidden!important;">
+        <div class="tab-content">
+          <div class="tab-pane active" id="tabPatient" role="tabpanel" ng-show="isPatientTab">
+            <div class="grid">
+              <div class="row">
+                <div class="col-md-6">
+                  <select class="form-control form-control-sm" placeholder="เลือกหมวดหมู่ของ LAB" ng-model="labGroupId" ng-change="showLabItems()">
+                    <option value="{{ o.engName }}" ng-repeat="o in orderDateList">{{ o.thName }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" placeholder="ระบุ HN หรือ ชื่อ" ng-model="query" ng-keypress="enterSearch($event)">
+                    <span class="input-group-btn">
+                      <button class="btn btn-sm btn-success" type="button" ng-click="searchPerson()">
+                        <i class="fa fa-search"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>วันที่/เวลา</th>
+                  <th>ชื่อ - สกุล</th>
+                  <th>สถานะ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-if="!orders.length">
+                  <td colspan="4">กรุณาค้นหา...</td>
+                </tr>
+                <tr ng-repeat="o in orders" ng-if="orders.length">
+                  <td>{{ o.order_date }}</td>
+                  <td>{{ o.person_fullname }} </td>
+                  <td style="text-align: center;">
+                    <button class="btn btn-sm btn-outline-success" 
+                    ng-click="getResult(o)" ng-if="o.confirm_status == 'Y'">
+                      <i class="fa fa-search"></i>
+                    </button>
+                    <i class="fa fa-close text-muted" ng-if="o.confirm_status == 'N'"></i>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+            <!--<div class="list-group m-a-0" data-name="listServices"></div>-->
+          </div>
+          <div class="tab-pane active" id="tabLabs" role="tabpanel" ng-show="isLabTab">
+            <!--<div class="list-group m-a-0" data-name="listServices"></div>-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item active">ชื่อ-สกุล: {{personName}}</li>
+      <li class="breadcrumb-item active">CID: {{ personCid }}</li>
+      <li>
+        <button class="btn btn-sm btn-success" type="button"
+        ng-disabled="!labItems.length" style="float: right;" ng-click="printResult()">
+          <i class="fa fa-print"></i> พิมพ์</button>
+      </li>
+    </ol>
+    <!--<nav class="navbar navbar-light align-middle" style="height: 40px; font-size: 2em; background-color: #e3f2fd;">
+      <a class="navbar-brand">{{personName}}</a>
+      <form class="form-inline">
+        <button class="btn btn-sm btn-success" type="button"
+        ng-disabled="!labItems.length" style="float: right;" ng-click="printResult()">
+          <i class="fa fa-print"></i> พิมพ์</button>
+      </form>
+    </nav>-->
+
+    <table class="table table-sm table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>ชื่อ LAB</th>
+          <th>ผล</th>
+          <th>ค่ามาตรฐาน</th>
+          <th>หน่วย</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+        <tr ng-if="!labItems.length">
+          <td colspan="5">ไม่พบรายการ...</td>
+        </tr>
+        <tr ng-repeat="l in labItems" ng-if="labItems.length">
+          <td>{{ $index + 1 }}</td>
+          <td>{{ l.lab_items_name }}</td>
+          <td>{{ l.lab_order_result }}</td>
+          <td>{{ l.lab_items_normal_value }}</td>
+          <td>{{ l.lab_items_unit }}</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </div>
+</div>
+</div>

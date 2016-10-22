@@ -1,0 +1,150 @@
+<div class="m-l-1 m-r-1">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#/">Home</a></li>
+    <li class="breadcrumb-item"><a href="#/lab">ระบบห้อง LAB</a></li>
+    <li class="breadcrumb-item active">สั่ง LAB Online</li>
+  </ol>
+
+<div class="row">
+  <div class="col-md-5">
+
+    <div class="card text-xs-center">
+      <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs pull-xs-left">
+          <li class="nav-item" style="cursor: pointer">
+            <a class="nav-link active" data-toggle="tab"  ng-click="showPatientTab()">
+              <i class="fa fa-user-plus"></i> ข้้อมูลผู้ป่วย</a>
+          </li>
+          <li class="nav-item" style="cursor: pointer;" >
+            <a class="nav-link" data-toggle="tab" ng-click="showLabTab()">
+              <i class="fa fa-flask"></i> รายการ LAB</a>
+          </li>
+        </ul>
+      </div>
+      <div class="card-block text-justify" style="height: 490px; overflow-y: scroll;">
+        <div class="tab-content">
+          <div class="tab-pane active" id="tabPatient" role="tabpanel" ng-show="isPatientTab">
+            <div class="input-group">
+              <input type="text" class="form-control form-control-sm" placeholder="ระบุ HN หรือ ชื่อ" ng-model="query" ng-keypress="enterSearch($event)">
+              <span class="input-group-btn">
+                <button class="btn btn-sm btn-success" type="button" ng-click="searchPerson()">
+                  <i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+            <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>HN</th>
+                  <th>ชื่อ - สกุล</th>
+                  <th>เพศ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-if="!people.length">
+                  <td colspan="4">กรุณาค้นหา...</td>
+                </tr>
+                <tr ng-repeat="person in people" ng-if="people.length">
+                  <td>{{ person.patient_hn }}</td>
+                  <td>{{ person.fullname }} </td>
+                  <td>{{ person.sex == '1' ? 'ชาย' : 'หญิง'}}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-success" ng-click="addPatient(person)">
+                      <i class="fa fa-plus"></i>
+                    </button>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+            <!--<div class="list-group m-a-0" data-name="listServices"></div>-->
+          </div>
+          <div class="tab-pane active" id="tabLabs" role="tabpanel" ng-show="isLabTab">
+            <div class="input-group">
+                <select class="form-control form-control-sm" placeholder="เลือกหมวดหมู่ของ LAB" ng-model="labGroupId" ng-change="showLabItems()">
+                  <option value="{{ l.lab_items_group_code }}" ng-repeat="l in labGroups">{{ l.lab_items_group_name }}</option>
+                </select>
+              </div>
+
+            <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>ชื่อ LAB</th>
+                  <th></th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+                <tr ng-if="!labItems.length">
+                  <td colspan="3">กรุณาค้นหา...</td>
+                </tr>
+                <tr ng-repeat="l in labItems" ng-if="labItems.length">
+                  <td>{{ $index + 1 }}</td>
+                  <td>{{ l.lab_items_name }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" ng-click="setSelectedLab(l)">
+                      <i class="fa fa-plus"></i>
+                    </button>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+            <!--<div class="list-group m-a-0" data-name="listServices"></div>-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="alert alert-info" role="alert">
+      HN: <strong>{{ selectedPerson.patient_hn }}</strong> 
+      เลขบัตรประชาชน <strong>{{ selectedPerson.cid }}</strong><br>
+      ชื่อ <strong>{{ selectedPerson.fullname }}</strong>  <br>
+      ที่อยู่ <strong>{{ selectedPerson.fulladdress }}</strong>
+    </div>
+    <div class="m-a-1 xs-pull-right">
+      <div class="btn-group">
+        <button class="btn btn-sm btn-success" ng-disabled="!selectedItems.length || !selectedPerson.cid" ng-click="save()">
+          <i class="fa fa-paper-plane"></i> สั่ง LAB
+        </button>
+        <button class="btn btn-sm btn-outline-danger" ng-click="clear()">
+          <i class="fa fa-trash"></i> ยกเลิก
+        </button>
+      </div>
+    </div>
+    <table class="table table-hover table-sm">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>ชื่อ LAB</th>
+          <th>ค่าปกติ</th>
+          <th>Unit</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr ng-if="!selectedItems.length">
+          <td colspan="5">ไม่พบรายการที่เลือก...</td>
+        </tr>
+        <tr ng-repeat="l in selectedItems" ng-if="selectedItems.length">
+          <td>{{ $index + 1 }}</td>
+          <td>{{ l.lab_items_name }}</td>
+          <td>{{ l.lab_items_normal_value }}</td>
+          <td>{{ l.lab_items_unit }}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-danger" ng-click="removeSelected($index)">
+              <i class="fa fa-minus"></i>
+            </button>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+  </div>
+</div>
+</div>
